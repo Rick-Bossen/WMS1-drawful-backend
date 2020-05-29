@@ -1,6 +1,6 @@
 from flask import Flask, make_response, jsonify
-
 from database import mongo
+from jwt_global import jwt
 
 from game import game_bp
 from room import room_bp
@@ -13,6 +13,10 @@ app.config["DEBUG"] = True
 # Init database connection
 app.config['MONGO_URI'] = 'mongodb://127.0.0.1:27017/drawful'
 mongo.init_app(app)
+
+# TODO generate random key
+app.config['JWT_SECRET_KEY'] = 'this-is-a-random-key-2323f402vf3h49jh3vb4hrtjk34h5lw34n5vw83l4locmwe4nmtcsek4,5vuy5'
+jwt.init_app(app)
 
 
 @app.errorhandler(404)
