@@ -132,9 +132,15 @@ def modify_user(_id):
     oid = ObjectId(_id)
 
     if username:
+        if not validation.validate_username(username):
+            return make_response(jsonify({"message": "Illegal username"}), 400)
+
         mongo.db.users.update({'_id': oid},
                               {'$set': {'username': username}})
     if mail:
+        if not validation.validate_mail(mail):
+            return make_response(jsonify({"message": "Illegal mail"}), 400)
+
         mongo.db.users.update({'_id': oid},
                               {'$set': {'mail': mail}})
     if password:
