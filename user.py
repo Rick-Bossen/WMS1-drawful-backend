@@ -5,13 +5,13 @@ from jwt_global import jwt
 from database import mongo
 from flask_pymongo import ObjectId
 import hashlib
+import validation
 
 user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/create", methods=["POST"])
 def create_user():
-    # TODO add validation
 
     if not request.is_json:
         return make_response(jsonify({'message': "Missing JSON in request"}), 400)
@@ -28,6 +28,11 @@ def create_user():
         return make_response(jsonify({"message": "Missing mail parameter"}), 400)
     if not password:
         return make_response(jsonify({"message": "Missing password parameter"}), 400)
+
+    if not validation.validate_username(username):
+        return make_response(jsonify({"message": "Illegal username"}), 400)
+    if not validation.validate_mail(mail):
+        return make_response(jsonify({"message": "Illegal mail"}), 400)
 
     password_hash = hashlib.sha512(password.encode("UTF-8")).hexdigest()
 
@@ -49,7 +54,6 @@ def delete_user():
 
 @user_bp.route("/login", methods=["POST"])
 def login_user():
-    # TODO add validation
 
     if not request.is_json:
         return make_response(jsonify({'message': "Missing JSON in request"}), 400)
@@ -63,6 +67,9 @@ def login_user():
         return make_response(jsonify({"message": "Missing mail parameter"}), 400)
     if not password:
         return make_response(jsonify({"message": "Missing password parameter"}), 400)
+
+    if not validation.validate_mail(mail):
+        return make_response(jsonify({"message": "Mail is not correct"}), 400)
 
     password_hash = hashlib.sha512(password.encode("UTF-8")).hexdigest()
 
