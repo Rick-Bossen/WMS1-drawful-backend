@@ -111,7 +111,7 @@ def modify_user(_id):
     identity = get_jwt_identity()
 
     if not identity["_id"] == _id:
-        return make_response(jsonify({"message": "Unauthorized"}), 401)
+        return make_response(jsonify({"message": "Unauthorized"}), 403)
 
     json = request.get_json()
 
