@@ -6,7 +6,7 @@ from database import mongo
 game_bp = Blueprint("game", __name__)
 
 
-@game_bp.route("/start", methods="POST")
+@game_bp.route("/start", methods=["POST"])
 @jwt_required
 # TODO check min amount of users in game
 def start_game():
@@ -43,3 +43,20 @@ def start_game():
     match_id = mongo.db.games.insert_one(game)
     mongo.db.rooms.delete_one({"_id": join_code})
     return make_response(jsonify({"message": "Game started", "match_id": match_id}), 200)
+
+
+@game_bp.route("/<string:match_id>/status", methods=["GET"])
+@jwt_required
+def get_game_status(match_id):
+
+    game = mongo.db.games.find_one({"_id": match_id})
+
+    if not game:
+        return make_response(jsonify({"message": "Match not found"}), 404)
+
+    identity = get_jwt_identity()
+
+    if not identity["_id"] in game.get("users"):
+        return make_response(jsonify({"message": "User not in game"}), 403)
+
+    return make_response(game, 200)
