@@ -18,16 +18,16 @@ def create_user():
 
     json = request.get_json()
 
+    if "username" not in json or not json["username"]:
+        return make_response(jsonify({"message": "Missing username parameter"}), 400)
+    if "mail" not in json or not json["mail"]:
+        return make_response(jsonify({"message": "Missing mail parameter"}), 400)
+    if "password" not in json or not json["password"]:
+        return make_response(jsonify({"message": "Missing password parameter"}), 400)
+
     username = json["username"]
     mail = json["mail"]
     password = json["password"]
-
-    if not username:
-        return make_response(jsonify({"message": "Missing username parameter"}), 400)
-    if not mail:
-        return make_response(jsonify({"message": "Missing mail parameter"}), 400)
-    if not password:
-        return make_response(jsonify({"message": "Missing password parameter"}), 400)
 
     if not validation.validate_username(username):
         return make_response(jsonify({"message": "Illegal username"}), 400)
@@ -60,13 +60,13 @@ def login_user():
 
     json = request.get_json()
 
+    if "mail" not in json or not json["mail"]:
+        return make_response(jsonify({"message": "Missing mail parameter"}), 400)
+    if "password" not in json or not json["password"]:
+        return make_response(jsonify({"message": "Missing password parameter"}), 400)
+
     mail = json["mail"]
     password = json["password"]
-
-    if not mail:
-        return make_response(jsonify({"message": "Missing mail parameter"}), 400)
-    if not password:
-        return make_response(jsonify({"message": "Missing password parameter"}), 400)
 
     if not validation.validate_mail(mail):
         return make_response(jsonify({"message": "Mail is not correct"}), 400)
@@ -120,31 +120,32 @@ def modify_user(_id):
     if not identity["_id"] == _id:
         return make_response(jsonify({"message": "Unauthorized"}), 401)
 
+    oid = ObjectId(_id)
     json = request.get_json()
 
-    username = json.get("username")
-    mail = json.get("mail")
-    password = json.get("password")
-
-    if not username or not mail or not password:
+    if "username" not in json and "mail" not in json and "password" not in json:
         return make_response(jsonify({"message": "No data in JSON"}), 400)
 
-    oid = ObjectId(_id)
+    if "username" in json and json["username"]:
+        username = json["username"]
 
-    if username:
         if not validation.validate_username(username):
             return make_response(jsonify({"message": "Illegal username"}), 400)
 
-        mongo.db.users.update({'_id': oid},
-                              {'$set': {'username': username}})
-    if mail:
+        mongo.db.users.update({'_id': oid}, {'$set': {'username': username}})
+
+    if "mail" in json and json["mail"]:
+        mail = json["mail"]
+
         if not validation.validate_mail(mail):
             return make_response(jsonify({"message": "Illegal mail"}), 400)
 
-        mongo.db.users.update({'_id': oid},
-                              {'$set': {'mail': mail}})
-    if password:
+        mongo.db.users.update({'_id': oid}, {'$set': {'mail': mail}})
+
+    if "password" in json and json["password"]:
+        password = json["password"]
+
         password_hash = hashlib.sha512(password.encode("UTF-8")).hexdigest()
-        mongo.db.users.update({'_id': oid},
-                              {'$set': {'password': password_hash}})
+        mongo.db.users.update({'_id': oid}, {'$set': {'password': password_hash}})
+
     return make_response(jsonify({"message": "Successfully updated user"}), 200)
