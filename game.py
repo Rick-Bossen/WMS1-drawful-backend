@@ -3,15 +3,15 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from flask_pymongo import ObjectId
 from database import mongo
+from word_parser import words
 
-from time import sleep
+from time import sleep, time
 
 game_bp = Blueprint("game", __name__)
 
 
 @game_bp.route("/start", methods=["POST"])
 @jwt_required
-# TODO check min amount of users in game
 def start_game():
     if not request.is_json:
         return make_response(jsonify({"message": "Missing JSON in request"}), 400)
@@ -34,14 +34,24 @@ def start_game():
     if not room.get("creator_id") == identity["_id"]:
         return make_response(jsonify({"message": "Unauthorized"}), 403)
 
+    if len(room.get("users")) < 3:
+        return make_response(jsonify({"message": "Not enough users to start game"}), 400)
+
+    users = []
+    for user in room.get("users"):
+        users.append({"id": user,
+                      "username": str(mongo.db.users.find_one({"_id": ObjectId(user)}).get("username")),
+                      "score": 0
+                      })
+
     game = {
         "join_code": join_code,
         "creator_id": room.get("creator_id"),
-        "users": room.get("users"),
+        "users": users,
         "user_drawing": room.get("users")[0],
-        "scores": dict((key, 0) for key in room.get("users")),
         "current_round": 0,
-        "rounds": rounds
+        "rounds": rounds,
+        "updated_at": int(time())
     }
 
     match_id = mongo.db.games.insert_one(game)
@@ -67,7 +77,7 @@ def pending_game():
     if not room:
         game = mongo.db.games.find_one({"join_code": join_code})
         if not game:
-            if identity["_id"] not in game.get("users"):
+            if not identity["_id"] in list(i.get("id") for i in game.get("users")):
                 return make_response(jsonify({"message": "Unauthorized"}), 403)
 
             return make_response(jsonify({"message": "Room not found"}), 404)
@@ -96,7 +106,7 @@ def get_game_status(match_id):
 
     identity = get_jwt_identity()
 
-    if not identity["_id"] in game.get("users"):
+    if not identity["_id"] in list(i.get("id") for i in game.get("users")):
         return make_response(jsonify({"message": "User not in game"}), 403)
 
     game["_id"] = str(game["_id"])
