@@ -101,7 +101,7 @@ def refresh():
 
 @user_bp.route("/<string:_id>", methods=["GET"])
 def get_username(_id):
-    user = mongo.db.users.find_one({"_id": _id})
+    user = mongo.db.users.find_one({"_id": ObjectId(_id)})
 
     if not user:
         return make_response(jsonify({"message": "Id not found"}), 400)
