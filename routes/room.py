@@ -2,9 +2,8 @@ import string
 import random
 
 from flask import Blueprint, request, make_response, jsonify
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, create_refresh_token, \
-    jwt_refresh_token_required, fresh_jwt_required
-from database import mongo
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from helpers.database import mongo
 
 room_bp = Blueprint("room", __name__)
 

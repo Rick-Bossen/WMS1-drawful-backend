@@ -1,11 +1,10 @@
 from flask import Blueprint, request, make_response, jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, create_refresh_token, \
     jwt_refresh_token_required, fresh_jwt_required
-from jwt_global import jwt
-from database import mongo
+from helpers.database import mongo
 from flask_pymongo import ObjectId
 import hashlib
-import validation
+from helpers import validation
 
 user_bp = Blueprint("user", __name__)
 

@@ -2,8 +2,7 @@ from flask import Blueprint, make_response, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from flask_pymongo import ObjectId
-from database import mongo
-from word_parser import words
+from helpers.database import mongo
 
 from time import sleep, time
 
