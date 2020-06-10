@@ -10,13 +10,13 @@ import game_logic.game_thread
 
 def start_game(match_id):
     result = mongo.db.games.update({"_id": ObjectId(match_id)},
-                          {"$set": {"status": "drawing",
-                                    "theme": random_word(),
-                                    "guesses": {},
-                                    "votes": {},
-                                    "unresponsive_users": [],
-                                    "updated_at": int(time())
-                                    }})
+                                   {"$set": {"status": "drawing",
+                                             "theme": random_word(),
+                                             "guesses": {},
+                                             "votes": {},
+                                             "unresponsive_users": [],
+                                             "updated_at": int(time())
+                                             }})
 
     game_logic.game_thread.BackgroundThread(match_id).start()
 
@@ -58,6 +58,7 @@ def random_word():
     return random.choice(words)
 
 
+# TODO check if user_drawing was already in unresponsive_users
 def user_timeout(match_id):
     game = mongo.db.games.find_one({"_id": match_id})
 
@@ -68,7 +69,7 @@ def user_timeout(match_id):
             unresponsive_users.append(game.get("user_drawing"))
 
         mongo.db.games.update({"_id": match_id},
-                              {'$set': {"updated_at": time(),
+                              {'$set': {"updated_at": int(time()),
                                         "guesses": {},
                                         "unresponsive_users": unresponsive_users,
                                         "status": "guessing"
@@ -80,7 +81,7 @@ def user_timeout(match_id):
             unresponsive_users.remove(game.get("user_drawing"))
 
         mongo.db.games.update({"_id": match_id},
-                              {'$set': {"updated_at": time(),
+                              {'$set': {"updated_at": int(time()),
                                         "votes": {},
                                         "unresponsive_users": unresponsive_users,
                                         "status": "voting"
@@ -106,17 +107,18 @@ def user_timeout(match_id):
 
         if current_round > game.get("rounds"):
             mongo.db.games.update({"_id": match_id},
-                                  {'$set': {"updated_at": time(),
+                                  {'$set': {"updated_at": int(time()),
                                             "unresponsive_users": unresponsive_users,
                                             "status": "finished"
                                             }})
 
         else:
             mongo.db.games.update({"_id": match_id},
-                                  {'$set': {"updated_at": time(),
+                                  {'$set': {"updated_at": int(time()),
                                             "unresponsive_users": unresponsive_users,
+                                            "user_drawing": users[current_index],
                                             "current_round": current_round,
-                                            "status": "finished"
+                                            "status": "drawing"
                                             }})
 
 
@@ -125,14 +127,14 @@ def advance_game(match_id, data):
 
     if game.get("status") == "drawing":
         mongo.db.games.update({"_id": ObjectId(match_id)},
-                              {'$set': {"updated_at": time(),
+                              {'$set': {"updated_at": int(time()),
                                         "drawing": data,
                                         "guesses": {},
                                         "status": "guessing"
                                         }})
     elif game.get("status") == "guessing":
         mongo.db.games.update({"_id": ObjectId(match_id)},
-                              {'$set': {"updated_at": time(),
+                              {'$set': {"updated_at": int(time()),
                                         "guesses": data,
                                         "votes": {},
                                         "status": "voting"
@@ -153,15 +155,16 @@ def advance_game(match_id, data):
 
         if current_round > game.get("rounds"):
             mongo.db.games.update({"_id": ObjectId(match_id)},
-                                  {'$set': {"updated_at": time(),
+                                  {'$set': {"updated_at": int(time()),
                                             "votes": data,
                                             "status": "finished"
                                             }})
 
         else:
             mongo.db.games.update({"_id": ObjectId(match_id)},
-                                  {'$set': {"updated_at": time(),
+                                  {'$set': {"updated_at": int(time()),
                                             "votes": data,
+                                            "user_drawing": users[current_index],
                                             "theme": random_word(),
                                             "current_round": current_round,
                                             "status": "drawing"
