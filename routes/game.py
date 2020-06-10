@@ -104,7 +104,7 @@ def get_game_status(match_id):
         return make_response(jsonify({"message": "Missing JSON in request"}), 400)
 
     if "after" not in request.get_json() or not request.get_json().get("after"):
-        return make_response(jsonify({"message": "Missing guess in request"}), 400)
+        return make_response(jsonify({"message": "Missing after in request"}), 400)
 
     after = request.get_json().get("after")
 
