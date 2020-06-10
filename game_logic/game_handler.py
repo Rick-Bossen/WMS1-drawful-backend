@@ -26,7 +26,7 @@ def submit_drawing(match_id, drawing):
 
 
 def submit_guess(match_id, guess, user_id):
-    game = mongo.db.games.find_one({"_id": match_id})
+    game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
     guesses = game.get("guesses")
     active_user_count = len(game.get("users")) - len(game.get("unresponsive_users"))
 
@@ -35,12 +35,12 @@ def submit_guess(match_id, guess, user_id):
     if len(guesses) == active_user_count - 1:
         advance_game(match_id, guesses)
     else:
-        mongo.db.games.update({"_id": match_id},
+        mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"guesses": guesses}})
 
 
 def submit_vote(match_id, voted_user, user_id):
-    game = mongo.db.games.find_one({"_id": match_id})
+    game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
     votes = game.get("votes")
     active_user_count = len(game.get("users")) - len(game.get("unresponsive_users"))
 
@@ -50,7 +50,7 @@ def submit_vote(match_id, voted_user, user_id):
     if len(votes) == active_user_count - 1:
         advance_game(match_id, votes)
     else:
-        mongo.db.games.update({"_id": match_id},
+        mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"votes": votes}})
 
 
