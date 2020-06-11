@@ -92,34 +92,11 @@ def user_timeout(match_id):
         if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))
 
-        users = list(i.get("id") for i in game.get("users"))
-        current_index = users.index(game.get("user_drawing"))
-        current_round = game.get("current_round")
-        boolean = True
-        while boolean:
-            current_index = current_index + 1
-            if current_index >= len(users):
-                current_index = 0
-                current_round = current_round + 1
-
-            if users[current_index] not in game.get("unresponsive_users"):
-                boolean = False
-
-        if current_round > game.get("rounds"):
-            mongo.db.games.update({"_id": match_id},
-                                  {'$set': {"updated_at": int(time()),
-                                            "unresponsive_users": unresponsive_users,
-                                            "status": "finished"
-                                            }})
-
-        else:
-            mongo.db.games.update({"_id": match_id},
-                                  {'$set': {"updated_at": int(time()),
-                                            "unresponsive_users": unresponsive_users,
-                                            "user_drawing": users[current_index],
-                                            "current_round": current_round,
-                                            "status": "drawing"
-                                            }})
+        mongo.db.games.update({"_id": match_id},
+                              {'$set': {"updated_at": int(time()),
+                                        "unresponsive_users": unresponsive_users,
+                                        "status": "showing_scores"
+                                        }})
 
 
 def advance_game(match_id, data):
@@ -140,6 +117,13 @@ def advance_game(match_id, data):
                                         "status": "voting"
                                         }})
     elif game.get("status") == "voting":
+        mongo.db.games.update({"_id": ObjectId(match_id)},
+                              {'$set': {"updated_at": int(time()),
+                                        "votes": data,
+                                        "status": "showing_scores"
+                                        }})
+
+    elif game.get("status") == "showing_scores":
         users = list(i.get("id") for i in game.get("users"))
         current_index = users.index(game.get("user_drawing"))
         current_round = game.get("current_round")
@@ -156,17 +140,16 @@ def advance_game(match_id, data):
         if current_round > game.get("rounds"):
             mongo.db.games.update({"_id": ObjectId(match_id)},
                                   {'$set': {"updated_at": int(time()),
-                                            "votes": data,
                                             "status": "finished"
                                             }})
 
         else:
             mongo.db.games.update({"_id": ObjectId(match_id)},
                                   {'$set': {"updated_at": int(time()),
-                                            "votes": data,
                                             "user_drawing": users[current_index],
                                             "theme": random_word(),
                                             "current_round": current_round,
+                                            "drawing": {},
                                             "status": "drawing"
                                             }})
 
