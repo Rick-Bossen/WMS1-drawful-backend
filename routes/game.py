@@ -17,13 +17,10 @@ def start_game():
     if not request.is_json:
         return make_response(jsonify({"message": "Missing JSON in request"}), 400)
 
-    join_code = request.get_json().get("join_code")
-    rounds = request.get_json().get("rounds")
-
-    if not join_code:
+    if "join_code" not in request.get_json() or request.get_json().get("join_code"):
         return make_response(jsonify({"message": "Missing join_code in request"}), 400)
-    if not rounds:
-        return make_response(jsonify({"message": "Missing rounds in request"}), 400)
+
+    join_code = request.get_json().get("join_code")
 
     room = mongo.db.rooms.find_one({"_id": join_code})
 
@@ -50,8 +47,7 @@ def start_game():
         "creator_id": room.get("creator_id"),
         "users": users,
         "user_drawing": room.get("users")[0],
-        "current_round": 1,
-        "rounds": rounds
+        "current_round": 1
     }
 
     match_id = mongo.db.games.insert_one(game)
