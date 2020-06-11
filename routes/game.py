@@ -61,16 +61,13 @@ def start_game():
     return make_response(jsonify({"message": "Game started", "match_id": str(match_id.inserted_id)}), 200)
 
 
-@game_bp.route("/pending", methods=["POST"])
+@game_bp.route("/pending", methods=["GET"])
 @jwt_required
 def pending_game():
-    if not request.is_json:
-        return make_response(jsonify({"message": "Missing JSON in request"}), 400)
+    if "join_code" not in request.args or not request.args.get("join_code"):
+        return make_response(jsonify({"message": "Missing join_code parameter"}), 400)
 
     join_code = request.get_json().get("join_code")
-
-    if not join_code:
-        return make_response(jsonify({"message": "Missing join_code in request"}), 400)
 
     room = mongo.db.rooms.find_one({"_id": join_code})
 
@@ -97,17 +94,9 @@ def pending_game():
     return make_response(jsonify({"message": "Game started", "match_id": str(game['_id'])}), 200)
 
 
-@game_bp.route("/<string:match_id>/status", methods=["POST"])
+@game_bp.route("/<string:match_id>/status", methods=["GET"])
 @jwt_required
 def get_game_status(match_id):
-    if not request.is_json:
-        return make_response(jsonify({"message": "Missing JSON in request"}), 400)
-
-    if "after" not in request.get_json() or not request.get_json().get("after"):
-        return make_response(jsonify({"message": "Missing after in request"}), 400)
-
-    after = request.get_json().get("after")
-
     game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
 
     if not game:
@@ -118,8 +107,11 @@ def get_game_status(match_id):
     if not identity["_id"] in list(i.get("id") for i in game.get("users")):
         return make_response(jsonify({"message": "User not in game"}), 403)
 
-    while not game.get("updated_at") > after:
-        sleep(1)
+    if "after" in request.args and request.args.get("after"):
+        while not game.get("updated_at") > request.args.get("after"):
+            sleep(1)
+            game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
+    else:
         game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
 
     game["_id"] = str(game["_id"])
