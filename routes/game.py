@@ -50,7 +50,7 @@ def start_game():
         "creator_id": room.get("creator_id"),
         "users": users,
         "user_drawing": room.get("users")[0],
-        "current_round": 0,
+        "current_round": 1,
         "rounds": rounds
     }
 
