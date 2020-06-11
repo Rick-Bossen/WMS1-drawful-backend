@@ -100,7 +100,7 @@ def refresh():
 
 @user_bp.route("/<string:_id>", methods=["GET"])
 def get_username(_id):
-    user = mongo.db.users.find_one({"_id": _id})
+    user = mongo.db.users.find_one({"_id": ObjectId(_id)})
 
     if not user:
         return make_response(jsonify({"message": "Id not found"}), 400)
@@ -117,7 +117,7 @@ def modify_user(_id):
     identity = get_jwt_identity()
 
     if not identity["_id"] == _id:
-        return make_response(jsonify({"message": "Unauthorized"}), 401)
+        return make_response(jsonify({"message": "Unauthorized"}), 403)
 
     oid = ObjectId(_id)
     json = request.get_json()
