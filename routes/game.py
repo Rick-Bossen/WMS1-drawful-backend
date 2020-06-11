@@ -67,7 +67,7 @@ def pending_game():
     if "join_code" not in request.args or not request.args.get("join_code"):
         return make_response(jsonify({"message": "Missing join_code parameter"}), 400)
 
-    join_code = request.get_json().get("join_code")
+    join_code = request.args.get("join_code")
 
     room = mongo.db.rooms.find_one({"_id": join_code})
 
