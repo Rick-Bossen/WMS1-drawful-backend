@@ -60,7 +60,7 @@ def random_word():
 
 
 def user_timeout(match_id):
-    game = mongo.db.games.find_one({"_id": match_id})
+    game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
 
     if game.get("status") == "drawing":
         unresponsive_users = game.get("unresponsive_users")
@@ -68,7 +68,7 @@ def user_timeout(match_id):
         if game.get("user_drawing") not in unresponsive_users:
             unresponsive_users.append(game.get("user_drawing"))
 
-        mongo.db.games.update({"_id": match_id},
+        mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
                                         "guesses": {},
                                         "unresponsive_users": unresponsive_users,
@@ -80,7 +80,7 @@ def user_timeout(match_id):
         if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))
 
-        mongo.db.games.update({"_id": match_id},
+        mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
                                         "votes": {},
                                         "unresponsive_users": unresponsive_users,
@@ -92,7 +92,7 @@ def user_timeout(match_id):
         if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))
 
-        mongo.db.games.update({"_id": match_id},
+        mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
                                         "unresponsive_users": unresponsive_users,
                                         "status": "showing_scores"

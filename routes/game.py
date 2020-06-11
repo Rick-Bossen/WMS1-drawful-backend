@@ -108,7 +108,7 @@ def get_game_status(match_id):
         return make_response(jsonify({"message": "User not in game"}), 403)
 
     if "after" in request.args and request.args.get("after"):
-        while not game.get("updated_at") > request.args.get("after"):
+        while not game.get("updated_at") > int(request.args.get("after")):
             sleep(1)
             game = mongo.db.games.find_one({"_id": ObjectId(match_id)})
     else:
