@@ -33,6 +33,7 @@ def submit_guess(match_id, guess, user_id):
     if user_id not in guesses:
         guesses[user_id] = guess
     if len(guesses) == active_user_count - 1:
+        guesses["answer"] = game.get("theme")
         advance_game(match_id, guesses)
     else:
         mongo.db.games.update({"_id": ObjectId(match_id)},
@@ -58,7 +59,6 @@ def random_word():
     return random.choice(words)
 
 
-# TODO check if user_drawing was already in unresponsive_users
 def user_timeout(match_id):
     game = mongo.db.games.find_one({"_id": match_id})
 
@@ -75,9 +75,9 @@ def user_timeout(match_id):
                                         "status": "guessing"
                                         }})
     elif game.get("status") == "guessing":
-        unresponsive_users = list(set() - set(game.get("guesses").keys()))
+        unresponsive_users = list(set(i.get("id") for i in game.get("users")) - set(game.get("guesses").keys()))
 
-        if game.get("user_drawing") in unresponsive_users:
+        if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))
 
         mongo.db.games.update({"_id": match_id},
@@ -87,9 +87,9 @@ def user_timeout(match_id):
                                         "status": "voting"
                                         }})
     elif game.get("status") == "voting":
-        unresponsive_users = list(set() - set(game.get("votes").keys()))
+        unresponsive_users = list(set(set(i.get("id") for i in game.get("users"))) - set(game.get("votes").keys()))
 
-        if game.get("user_drawing") in unresponsive_users:
+        if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))
 
         users = list(i.get("id") for i in game.get("users"))
