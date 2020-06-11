@@ -2,9 +2,8 @@ import string
 import random
 
 from flask import Blueprint, request, make_response, jsonify
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, create_refresh_token, \
-    jwt_refresh_token_required, fresh_jwt_required
-from database import mongo
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from helpers.database import mongo
 
 room_bp = Blueprint("room", __name__)
 
@@ -12,6 +11,18 @@ room_bp = Blueprint("room", __name__)
 @room_bp.route("/create", methods=["POST"])
 @jwt_required
 def create_room():
+    if not request.is_json:
+        return make_response(jsonify({"message": "Missing JSON in request"}), 400)
+
+    if "rounds" not in request.get_json() or not request.get_json().get("rounds"):
+        return make_response(jsonify({"message": "Missing rounds in request"}), 400)
+
+    if "max_players" not in request.get_json() or not request.get_json().get("max_players"):
+        return make_response(jsonify({"message": "Missing rounds in request"}), 400)
+
+    rounds = request.get_json().get("rounds")
+    max_players = request.get_json().get("max_players")
+
     identity = get_jwt_identity()
 
     _id = identity["_id"]
@@ -25,7 +36,9 @@ def create_room():
     room = {
         "_id": r,
         "creator_id": _id,
-        "users": [_id]
+        "users": [_id],
+        "rounds": rounds,
+        "max_players": max_players
     }
     mongo.db.rooms.insert_one(room)
     return make_response(jsonify({"room_id": r}), 200)
@@ -49,7 +62,7 @@ def join_room():
     if _id in users:
         return make_response(jsonify({"message": "User already in room"}), 403)
 
-    if len(users) >= 8:
+    if len(users) >= room.get("max_players"):
         return make_response(jsonify({"message": "Room is full"}), 404)
 
     users.append(_id)

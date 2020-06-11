@@ -1,11 +1,11 @@
 from flask import Flask, make_response, jsonify
 from flask_cors import CORS
-from database import mongo
-from jwt_global import jwt
+from helpers.database import mongo
+from helpers.jwt_global import jwt
 
-from game import game_bp
-from room import room_bp
-from user import user_bp
+from routes import game_bp
+from routes import room_bp
+from routes import user_bp
 
 # Create app
 app = Flask(__name__)
