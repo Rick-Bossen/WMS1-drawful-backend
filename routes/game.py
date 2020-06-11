@@ -17,7 +17,7 @@ def start_game():
     if not request.is_json:
         return make_response(jsonify({"message": "Missing JSON in request"}), 400)
 
-    if "join_code" not in request.get_json() or request.get_json().get("join_code"):
+    if "join_code" not in request.get_json() or not request.get_json().get("join_code"):
         return make_response(jsonify({"message": "Missing join_code in request"}), 400)
 
     join_code = request.get_json().get("join_code")
@@ -37,8 +37,8 @@ def start_game():
 
     users = []
     for user in room.get("users"):
-        users.append({"id": user,
-                      "username": str(mongo.db.users.find_one({"_id": ObjectId(user)}).get("username")),
+        users.append({"id": user.get("id"),
+                      "username": user.get("username"),
                       "score": 0
                       })
 
