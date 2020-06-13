@@ -21,8 +21,8 @@ def create_room():
     if "max_players" not in request.get_json() or not request.get_json().get("max_players"):
         return make_response(jsonify({"message": "Missing rounds in request"}), 400)
 
-    rounds = request.get_json().get("rounds")
-    max_players = request.get_json().get("max_players")
+    rounds = int(request.get_json().get("rounds"))
+    max_players = int(request.get_json().get("max_players"))
 
     identity = get_jwt_identity()
 
