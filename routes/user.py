@@ -83,14 +83,6 @@ def login_user():
     return make_response(jsonify({"access_token": access_token, "refresh_token": refresh_token}), 200)
 
 
-@user_bp.route("/test", methods=["GET"])
-@jwt_required
-def test_user():
-    user = get_jwt_identity()
-    print(user)
-    return make_response("test message", 200)
-
-
 @user_bp.route("/refresh", methods=["POST"])
 @jwt_refresh_token_required
 def refresh():
