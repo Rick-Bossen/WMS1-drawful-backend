@@ -79,7 +79,7 @@ def pending_game():
         else:
             return make_response(jsonify({"message": "Game started", "match_id": str(game['_id'])}), 200)
 
-    if identity["_id"] not in room.get("users"):
+    if identity["_id"] not in list(i.get("id") for i in room.get("users")):
         return make_response(jsonify({"message": "Unauthorized"}), 403)
 
     game = mongo.db.games.find_one({"join_code": join_code})
