@@ -17,10 +17,10 @@ class BackgroundThread(threading.Thread):
     def run(self):
         while not self.stopped.wait(1):
             game = mongo.db.games.find_one({"_id": ObjectId(self.match_id)})
-            if time() - game.get("updated_at") >= 60:
+            if int(time()) - game.get("updated_at") >= 60:
                 game_logic.game_handler.user_timeout(self.match_id)
 
-            elif game.get("status") == "showing_scores" and time() - game.get("updated_at") >= 10:
+            elif game.get("status") == "showing_scores" and int(time()) - game.get("updated_at") >= 10:
                 game_logic.game_handler.advance_game(self.match_id, None)
 
             elif set(i.get("id") for i in game.get("users")) == set(game.get("unresponsive_users")):
