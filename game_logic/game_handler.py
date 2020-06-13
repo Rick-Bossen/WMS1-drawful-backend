@@ -87,7 +87,7 @@ def user_timeout(match_id):
                                         "status": "voting"
                                         }})
     elif game.get("status") == "voting":
-        unresponsive_users = list(set(set(i.get("id") for i in game.get("users"))) - set(game.get("votes").keys()))
+        unresponsive_users = list(set(i.get("id") for i in game.get("users")) - set(game.get("votes").keys()))
 
         if game.get("user_drawing") not in game.get("unresponsive_users"):
             unresponsive_users.remove(game.get("user_drawing"))

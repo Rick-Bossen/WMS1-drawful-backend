@@ -46,7 +46,7 @@ def start_game():
         "join_code": join_code,
         "creator_id": room.get("creator_id"),
         "users": users,
-        "user_drawing": room.get("users")[0],
+        "user_drawing": users[0].get("id"),
         "current_round": 1
     }
 
@@ -208,6 +208,9 @@ def add_drawing(match_id):
 
     if not identity["_id"] in list(i.get("id") for i in game.get("users")):
         return make_response(jsonify({"message": "User not in game"}), 403)
+
+    if not identity["_id"] == game.get("user_drawing"):
+        return make_response(jsonify({"message": "User is not drawing"}), 403)
 
     game_handler.submit_drawing(match_id, drawing)
 
