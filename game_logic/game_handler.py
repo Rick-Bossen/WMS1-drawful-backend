@@ -32,7 +32,11 @@ def submit_guess(match_id, guess, user_id):
 
     if user_id not in guesses:
         guesses[user_id] = guess
-    if len(guesses) == active_user_count - 1:
+
+    if game.get("user_drawing") not in game.get("unresponsive_users"):
+        active_user_count = active_user_count - 1
+
+    if len(guesses) == active_user_count:
         guesses["answer"] = game.get("theme")
         advance_game(match_id, guesses)
     else:
@@ -48,7 +52,10 @@ def submit_vote(match_id, voted_user, user_id):
     if user_id not in votes:
         votes[user_id] = voted_user
 
-    if len(votes) == active_user_count - 1:
+    if game.get("user_drawing") not in game.get("unresponsive_users"):
+        active_user_count = active_user_count - 1
+
+    if len(votes) == active_user_count:
         advance_game(match_id, votes)
     else:
         mongo.db.games.update({"_id": ObjectId(match_id)},
