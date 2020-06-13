@@ -85,7 +85,7 @@ def join_room():
     return make_response(jsonify({"message": "Successfully joined room"}), 200)
 
 
-@room_bp.route("/<string:join_code>/get_room", methods=["GET"])
+@room_bp.route("/<string:join_code>", methods=["GET"])
 @jwt_required
 def get_room(join_code):
     room = mongo.db.rooms.find_one({"_id": join_code})
