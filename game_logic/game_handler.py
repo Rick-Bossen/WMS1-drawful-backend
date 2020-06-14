@@ -1,4 +1,5 @@
 import random
+from collections import Counter
 from time import time
 
 from flask_pymongo import ObjectId
@@ -101,6 +102,7 @@ def user_timeout(match_id):
 
         mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
+                                        "users": get_updated_scores(game),
                                         "unresponsive_users": unresponsive_users,
                                         "status": "showing_scores"
                                         }})
@@ -126,6 +128,7 @@ def advance_game(match_id, data):
     elif game.get("status") == "voting":
         mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
+                                        "users": get_updated_scores(game),
                                         "votes": data,
                                         "status": "showing_scores"
                                         }})
@@ -173,3 +176,28 @@ def user_present(match_id, user_id):
 
 def delete_game(match_id):
     mongo.db.games.delete_one({"_id": ObjectId(match_id)})
+
+
+def get_updated_scores(game):
+    votes = game.get("votes")
+    users = game.get("users")
+
+    counter = Counter(votes.values())
+
+    # Give all correct guesses 1000 points
+    for user_id in (k for (k, v) in votes.items() if v == "answer"):
+        for user in users:
+            if user.get("id") == user_id:
+                user["score"] = user["score"] + 1000
+
+    # Give points to all voted answers
+    for (k, v) in counter.items():
+        if k == "answer":
+            k = game.get("user_drawing")
+            v = v * 2  # double points to user_drawing if correct answer is chosen
+
+        for user in users:
+            if user.get("id") == k:
+                user["score"] = user["score"] + 500 * v
+
+    return users
