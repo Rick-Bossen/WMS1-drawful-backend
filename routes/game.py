@@ -47,7 +47,8 @@ def start_game():
         "creator_id": room.get("creator_id"),
         "users": users,
         "user_drawing": users[0].get("id"),
-        "current_round": 1
+        "current_round": 1,
+        "rounds": room.get("rounds"),
     }
 
     match_id = mongo.db.games.insert_one(game)
