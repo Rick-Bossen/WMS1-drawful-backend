@@ -34,4 +34,5 @@ app.register_blueprint(game_bp, url_prefix="/game")
 app.register_blueprint(room_bp, url_prefix="/room")
 app.register_blueprint(user_bp, url_prefix="/user")
 
-app.run()
+if __name__ == "__main__":
+    app.run()

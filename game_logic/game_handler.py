@@ -126,10 +126,13 @@ def advance_game(match_id, data):
                                         "status": "voting"
                                         }})
     elif game.get("status") == "voting":
+        # First update votes alone because scores rely on it
+        mongo.db.games.update({"_id": ObjectId(match_id)},
+                              {'$set': {"votes": data}})
+
         mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
                                         "users": get_updated_scores(game),
-                                        "votes": data,
                                         "status": "showing_scores"
                                         }})
 
@@ -182,7 +185,9 @@ def get_updated_scores(game):
     votes = game.get("votes")
     users = game.get("users")
 
+    print(votes)
     counter = Counter(votes.values())
+    print(counter.items())
 
     # Give all correct guesses 1000 points
     for user_id in (k for (k, v) in votes.items() if v == "answer"):
