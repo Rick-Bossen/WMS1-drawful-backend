@@ -39,6 +39,7 @@ def start_game():
     for user in room.get("users"):
         users.append({"id": user.get("id"),
                       "username": user.get("username"),
+                      "guest": user.get("guest"),
                       "score": 0
                       })
 

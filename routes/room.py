@@ -33,8 +33,10 @@ def create_room():
         if not mongo.db.rooms.find_one({"_id": r}):
             break
 
+    db_user = mongo.db.users.find_one({"_id": ObjectId(_id)})
     user = {"id": _id,
-            "username": str(mongo.db.users.find_one({"_id": ObjectId(_id)}).get("username"))
+            "username": str(db_user.get("username")),
+            "guest": db_user.get("guest")
             }
 
     room = {
@@ -74,7 +76,8 @@ def join_room():
         return make_response(jsonify({"message": "Room is full"}), 404)
 
     user = {"id": _id,
-            "username": str(mongo.db.users.find_one({"_id": ObjectId(_id)}).get("username"))
+            "username": str(mongo.db.users.find_one({"_id": ObjectId(_id)}).get("username")),
+            "guest": user.get("guest")
             }
 
     users.append(user)

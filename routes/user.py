@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from helpers.database import mongo
 from flask_pymongo import ObjectId
 import hashlib
+import random
 from helpers import validation
 
 user_bp = Blueprint("user", __name__)
@@ -38,10 +39,32 @@ def create_user():
     user = {
         "username": username,
         "mail": mail,
-        "password": password_hash
+        "password": password_hash,
+        "guest": False
     }
     mongo.db.users.insert_one(user)
     return make_response(jsonify({'message': 'User created successfully'}), 201)
+
+
+@user_bp.route("/guest", methods=["POST"])
+def guest_user():
+    while True:
+        username = "guest#" + str(random.randint(0, 9999))
+        if not mongo.db.users.find_one({"username": username}):
+            break
+
+    user = {
+        "username": username,
+        "mail": "",
+        "password": "",
+        "guest": True
+    }
+    id = mongo.db.users.insert_one(user).inserted_id
+
+    access_token = create_access_token(identity={"_id": str(id)})
+    refresh_token = create_refresh_token(identity={"_id": str(id)})
+
+    return make_response(jsonify({"access_token": access_token, "refresh_token": refresh_token}), 200)
 
 
 @user_bp.route("/delete", methods=["DELETE"])
@@ -72,7 +95,7 @@ def login_user():
 
     password_hash = hashlib.sha512(password.encode("UTF-8")).hexdigest()
 
-    user = mongo.db.users.find_one({"mail": mail, "password": password_hash})
+    user = mongo.db.users.find_one({"mail": mail, "password": password_hash, "guest": false})
 
     if not user:
         return make_response(jsonify({'message': "No matching credentials found"}), 400)
