@@ -153,6 +153,10 @@ def advance_game(match_id, data):
                                             "status": "finished"
                                             }})
 
+            for user in game.get("users"):
+                if user.get("guest"):
+                    mongo.db.users.delete_one({"_id": ObjectId(user.get("id"))})
+
         else:
             mongo.db.games.update({"_id": ObjectId(match_id)},
                                   {'$set': {"updated_at": int(time()),
