@@ -75,9 +75,10 @@ def join_room():
     if len(users) >= room.get("max_players"):
         return make_response(jsonify({"message": "Room is full"}), 404)
 
+    db_user = mongo.db.users.find_one({"_id": ObjectId(_id)})
     user = {"id": _id,
-            "username": str(mongo.db.users.find_one({"_id": ObjectId(_id)}).get("username")),
-            "guest": user.get("guest")
+            "username": str(db_user.get("username")),
+            "guest": db_user.get("guest")
             }
 
     users.append(user)

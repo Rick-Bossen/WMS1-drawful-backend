@@ -95,7 +95,7 @@ def login_user():
 
     password_hash = hashlib.sha512(password.encode("UTF-8")).hexdigest()
 
-    user = mongo.db.users.find_one({"mail": mail, "password": password_hash, "guest": false})
+    user = mongo.db.users.find_one({"mail": mail, "password": password_hash, "guest": False})
 
     if not user:
         return make_response(jsonify({'message': "No matching credentials found"}), 400)
