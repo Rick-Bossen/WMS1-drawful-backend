@@ -70,8 +70,9 @@ def guest_user():
 @user_bp.route("/delete", methods=["DELETE"])
 @jwt_required
 def delete_user():
-    user = get_jwt_identity()
-    mongo.db.users.delete_one({"mail": user})
+    identity = get_jwt_identity()
+    mongo.db.users.delete_one({"_id": ObjectId(identity["_id"])})
+    return make_response(jsonify({"message": "Success"}), 200)
 
 
 @user_bp.route("/login", methods=["POST"])

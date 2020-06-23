@@ -33,7 +33,7 @@ def start_game():
         return make_response(jsonify({"message": "Unauthorized"}), 403)
 
     if len(room.get("users")) < 3:
-        return make_response(jsonify({"message": "Not enough users to start game"}), 400)
+        return make_response(jsonify({"message": "Not enough users to start game"}), 403)
 
     users = []
     for user in room.get("users"):
@@ -56,7 +56,7 @@ def start_game():
     mongo.db.rooms.delete_one({"_id": join_code})
 
     game_handler.start_game(str(match_id.inserted_id))
-    return make_response(jsonify({"message": "Game started", "match_id": str(match_id.inserted_id)}), 200)
+    return make_response(jsonify({"message": "Game started", "match_id": str(match_id.inserted_id)}), 201)
 
 
 @game_bp.route("/pending", methods=["GET"])
@@ -171,7 +171,7 @@ def guess_theme(match_id):
 
     game_handler.submit_guess(match_id, guess, identity["_id"])
 
-    return make_response(jsonify({"message": "Guess received"}), 200)
+    return make_response(jsonify({"message": "Guess received"}), 201)
 
 
 @game_bp.route("/<string:match_id>/present", methods=["POST"])
@@ -216,7 +216,7 @@ def add_drawing(match_id):
 
     game_handler.submit_drawing(match_id, drawing)
 
-    return make_response(jsonify({"message": "Drawing successfully received"}), 200)
+    return make_response(jsonify({"message": "Drawing successfully received"}), 201)
 
 
 @game_bp.route("/<string:match_id>/theme/vote", methods=["POST"])
@@ -247,4 +247,4 @@ def submit_vote(match_id):
 
     game_handler.submit_vote(match_id, vote, identity["_id"])
 
-    return make_response(jsonify({"message": "Vote successfully received"}), 200)
+    return make_response(jsonify({"message": "Vote successfully received"}), 201)

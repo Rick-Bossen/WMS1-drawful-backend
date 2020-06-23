@@ -48,7 +48,7 @@ def create_room():
     }
 
     mongo.db.rooms.insert_one(room)
-    return make_response(jsonify({"room_id": r}), 200)
+    return make_response(jsonify({"room_id": r}), 201)
 
 
 @room_bp.route("/join", methods=["POST"])
@@ -73,7 +73,7 @@ def join_room():
         return make_response(jsonify({"message": "User already in room"}), 403)
 
     if len(users) >= room.get("max_players"):
-        return make_response(jsonify({"message": "Room is full"}), 404)
+        return make_response(jsonify({"message": "Room is full"}), 403)
 
     db_user = mongo.db.users.find_one({"_id": ObjectId(_id)})
     user = {"id": _id,
