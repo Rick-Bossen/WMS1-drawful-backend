@@ -128,7 +128,7 @@ def advance_game(match_id, data):
     elif game.get("status") == "voting":
         mongo.db.games.update({"_id": ObjectId(match_id)},
                               {'$set': {"updated_at": int(time()),
-                                        "users": get_updated_scores(game, data),                                        "votes": data,
+                                        "users": get_updated_scores(game, data),
                                         "votes": data,
                                         "status": "showing_scores"
                                         }})

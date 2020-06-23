@@ -70,8 +70,9 @@ def guest_user():
 @user_bp.route("/delete", methods=["DELETE"])
 @jwt_required
 def delete_user():
-    user = get_jwt_identity()
-    mongo.db.users.delete_one({"mail": user})
+    identity = get_jwt_identity()
+    mongo.db.users.delete_one({"_id": ObjectId(identity["_id"])})
+    return make_response(jsonify({"message": "Success"}), 200)
 
 
 @user_bp.route("/login", methods=["POST"])
@@ -103,7 +104,7 @@ def login_user():
     access_token = create_access_token(identity={"_id": str(user.get("_id"))}, fresh=True)
     refresh_token = create_refresh_token(identity={"_id": str(user.get("_id"))})
 
-    return make_response(jsonify({"access_token": access_token, "refresh_token": refresh_token}), 200)
+    return make_response(jsonify({"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1OTI0MjQxMzYsIm5iZiI6MTU5MjQyNDEzNiwianRpIjoiMzg4Y2MwY2MtZjgxOS00YWVmLTk4ODMtMjdhNGIwYWRlYzExIiwiZXhwIjoxNTgyNDI1MDM2LCJpZGVudGl0eSI6eyJfaWQiOiI1ZWVhYzcxYzFkNDkxYzA4MGNjYzA4ZmEifSwiZnJlc2giOnRydWUsInR5cGUiOiJhY2Nlc3MifQ.1nvgGzSn2WD_cLQ3o_yU4gobQ_Qcwv6SuPbBSqRcVZI", "refresh_token": refresh_token}), 200)
 
 
 @user_bp.route("/refresh", methods=["POST"])
