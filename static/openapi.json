@@ -1,0 +1,431 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Drawful API WMS1",
+    "description": "API for a school project of the Hanzehogeschool",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "http://drawpy.locick.nl"
+    }
+  ],
+  "paths": {
+    "/user/guest": {
+      "post": {
+        "summary": "Login as guest",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged in as a new guest user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JWT"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "summary": "Login as an existing user",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "mail",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Logged in as user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/refresh": {
+      "post": {
+        "summary": "Get a new access token",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/TokenInvalid"
+          },
+          "401": {
+            "$ref": "#/components/responses/TokenExpired"
+          },
+          "200": {
+            "description": "New access token generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/create": {
+      "post": {
+        "summary": "Create a new user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 32
+            }
+          },
+          {
+            "name": "mail",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Succesfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "Get username",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uid"
+            }
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/TokenInvalid"
+          },
+          "401": {
+            "$ref": "#/components/responses/TokenExpired"
+          },
+          "400": {
+            "description": "Id Invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "User found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["username"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}/manage": {
+      "put": {
+        "summary": "Modify user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uid"
+            }
+          },
+          {
+            "name": "username",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 32
+            }
+          },
+          {
+            "name": "mail",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/TokenInvalid"
+          },
+          "401": {
+            "$ref": "#/components/responses/TokenExpired"
+          },
+          "400": {
+            "description": "Id Invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Succesfully modified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/delete": {
+      "delete": {
+        "summary": "Delete authenticated user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/TokenInvalid"
+          },
+          "401": {
+            "$ref": "#/components/responses/TokenExpired"
+          },
+          "400": {
+            "description": "Id Invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "User deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "jwtAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Message": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "format": "JWT"
+          },
+          "refresh_token": {
+            "type": "string",
+            "format": "JWT"
+          }
+        },
+        "access_token": [
+          "message"
+        ]
+      }
+    },
+    "responses": {
+      "TokenExpired": {
+        "description": "Token has expired",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "msg": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "msg"
+              ]
+            }
+          }
+        }
+      },
+      "TokenInvalid": {
+        "description": "Invalid token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "msg": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "msg"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
