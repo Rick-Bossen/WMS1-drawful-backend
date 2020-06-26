@@ -24,10 +24,10 @@ CORS(app)
 
 # Init Swagger UI
 swaggerui_blueprint = get_swaggerui_blueprint(
-    "/api/docs",
-    "/static/openapi.json"
+    "/docs",
+    "/static/openapi.yml"
 )
-app.register_blueprint(swaggerui_blueprint, url_prefix="/api/docs")
+app.register_blueprint(swaggerui_blueprint, url_prefix="/docs")
 
 # Init database connection
 app.config['MONGO_URI'] = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/drawful")

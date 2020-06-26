@@ -1,0 +1,809 @@
+---
+openapi: 3.0.3
+info:
+  title: Drawful API WMS1
+  description: API for a school project of the Hanzehogeschool
+  version: '1'
+servers:
+  - url: https://drawpy.logick.nl
+paths:
+  user/guest:
+    post:
+      summary: Login as guest
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Logged in as a new guest user
+          content:
+            $ref: "#/components/responses/AccessToken"
+  user/login:
+    post:
+      summary: Login as an existing user
+      tags:
+        - Auth
+      parameters:
+        - name: mail
+          in: body
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: body
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '200':
+          description: Logged in as user
+          content:
+            $ref: "#/components/responses/AccessToken"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+  user/refresh:
+    post:
+      summary: Get a new access token
+      tags:
+        - Auth
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: New access token generated
+          content:
+            $ref: "#/components/responses/AccessToken"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  user/create:
+    post:
+      summary: Create a new user
+      tags:
+        - User
+      parameters:
+        - name: username
+          in: body
+          required: true
+          schema:
+            type: string
+            minLength: 4
+            maxLength: 32
+        - name: mail
+          in: body
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: body
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '201':
+          description: Succesfully created
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+  user/{id}:
+    get:
+      summary: Get username
+      tags:
+        - User
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uid
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                required:
+                  - username
+        '400':
+          description: Id Invalid
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  user/{id}/manage:
+    put:
+      summary: Modify user
+      tags:
+        - User
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uid
+        - name: username
+          in: body
+          required: true
+          schema:
+            type: string
+            minLength: 4
+            maxLength: 32
+        - name: mail
+          in: body
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: body
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '200':
+          description: Succesfully modified
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Id Invalid
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  user/delete:
+    delete:
+      summary: Delete authenticated user
+      tags:
+        - User
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: User deleted
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Id Invalid
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  room/create:
+    post:
+      summary: Create a room
+      tags:
+        - Room
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: rounds
+          in: body
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 10
+        - name: max_players
+          in: body
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 3
+            maximum: 8
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room_id:
+                    type: string
+                required:
+                  - room_id
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  room/join:
+    post:
+      summary: Join a room
+      tags:
+        - Room
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: join_code
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room joined
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: Cannot join room
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Room not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  room/{id}:
+    get:
+      summary: Get room information
+      tags:
+        - Room
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        '403':
+          description: Not in the requested room
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Room not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  room/leave:
+    delete:
+      summary: Leave a room the user has joined
+      tags:
+        - Room
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: Left room
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: Not in the room
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Room not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/start:
+    post:
+      summary: Start a game
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: join_code
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game Started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  match_id:
+                    type: string
+                required:
+                  - message
+                  - match_id
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User has not created the room or not enough players to start
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Room not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/pending:
+    get:
+      summary: Wait for the game to start
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: join_code
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game Started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  match_id:
+                    type: string
+                required:
+                  - message
+                  - match_id
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User not in room
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Room not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/{id}/status:
+    get:
+      summary: Get the curernt status of the game
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game Started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/Game"
+        '403':
+          description: User not in game
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/{id}/theme:
+    get:
+      summary: Get the theme of the game to draw
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Theme of the current round
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  theme:
+                    type: string
+                required:
+                  - theme
+        '403':
+          description: User not in game or user not drawing
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+    post:
+      summary: Submit what you think the drawing is
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: guess
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Guess of the theme submitted
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User not in game or user not guessing
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/{id}/present:
+    post:
+      summary: Let the server know the user is still present in the match
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User is present
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User not in game
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/{id}/drawing/add:
+    post:
+      summary: Submit the drawing for this round
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: drawing
+          in: body
+          required: true
+          schema:
+            $ref: "#/components/schemas/Drawing"
+      responses:
+        '201':
+          description: Drawing submitted
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User not in game
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+  game/{id}/theme/vote:
+    post:
+      summary: Vote on the theme
+      tags:
+        - Game
+      security:
+        - jwtAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: vote
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Vote submitted
+          content:
+            $ref: "#/components/responses/Message"
+        '400':
+          description: Invalid request
+          content:
+            $ref: "#/components/responses/Message"
+        '403':
+          description: User not in game
+          content:
+            $ref: "#/components/responses/Message"
+        '404':
+          description: Game not found
+          content:
+            $ref: "#/components/responses/Message"
+        '401':
+          $ref: "#/components/responses/TokenExpired"
+        '422':
+          $ref: "#/components/responses/TokenInvalid"
+components:
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        guest:
+          type: boolean
+        score:
+          type: integer
+      required:
+        - id
+        - username
+        - guest
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+        creator_id:
+          type: string
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        rounds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 10
+        max_player:
+          type: integer
+          format: int32
+          minimum: 3
+          maximum: 8
+    Game:
+      type: object
+      properties:
+        id:
+          type: string
+        join_code:
+          type: string
+        creator_id:
+          type: string
+        user_drawing:
+          type: string
+        rounds:
+          type: integer
+        current_round:
+          type: integer
+        status:
+          type: string
+          enum:
+            - drawing
+            - guessing
+            - voting
+            - showing_scores
+            - finished
+        theme:
+          type: string
+        drawing:
+          $ref: "#/components/schemas/Drawing"
+        guesses:
+          type: object
+        votes:
+          type: object
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        unresponsive_users:
+          type: array
+          items:
+            type: string
+        updated_at:
+          type: number
+          format: timestamp
+      required:
+        - id
+        - join_code
+        - creator_id
+        - users
+        - user_drawing
+        - current_round
+        - rounds
+        - status
+        - guesses
+        - votes
+        - unresponsive_users
+        - updated_at
+    Drawing:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            type: object
+            properties:
+              stroke:
+                type: object
+                properties:
+                  color:
+                    type: string
+                  width:
+                    type: integer
+                required:
+                  - color
+                  - width
+              points:
+                type: object
+                properties:
+                  x:
+                    type: integer
+                  y:
+                    type: integer
+                required:
+                  - x
+                  - y
+            required:
+              - stroke
+              - points
+      required:
+        - lines
+  responses:
+    Message:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
+    AccessToken:
+      application/json:
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+              format: JWT
+            refresh_token:
+              type: string
+              format: JWT
+          required:
+            - access_token
+    TokenExpired:
+      description: Token has expired
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+            required:
+              - msg
+    TokenInvalid:
+      description: Invalid token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+            required:
+              - msg
