@@ -10,16 +10,32 @@ paths:
   user/guest:
     post:
       summary: Login as guest
+      description: >
+        Create a new user resource holding the value `guest: true`
+        User will only be valid of the duration of 1 game.
       tags:
         - Auth
       responses:
         '200':
           description: Logged in as a new guest user
           content:
-            $ref: "#/components/responses/AccessToken"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    format: JWT
+                  refresh_token:
+                    type: string
+                    format: JWT
+                required:
+                  - access_token
   user/login:
     post:
       summary: Login as an existing user
+      description: >
+        Login to a user resource holding the value `guest: false`
       tags:
         - Auth
       parameters:
@@ -39,11 +55,29 @@ paths:
         '200':
           description: Logged in as user
           content:
-            $ref: "#/components/responses/AccessToken"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    format: JWT
+                  refresh_token:
+                    type: string
+                    format: JWT
+                required:
+                  - access_token
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
   user/refresh:
     post:
       summary: Get a new access token
@@ -55,7 +89,18 @@ paths:
         '200':
           description: New access token generated
           content:
-            $ref: "#/components/responses/AccessToken"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    format: JWT
+                  refresh_token:
+                    type: string
+                    format: JWT
+                required:
+                  - access_token
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -89,11 +134,25 @@ paths:
         '201':
           description: Succesfully created
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
   user/{id}:
     get:
       summary: Get username
@@ -123,7 +182,14 @@ paths:
         '400':
           description: Id Invalid
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -165,11 +231,25 @@ paths:
         '200':
           description: Succesfully modified
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Id Invalid
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -185,11 +265,25 @@ paths:
         '200':
           description: User deleted
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Id Invalid
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -233,7 +327,14 @@ paths:
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -255,19 +356,47 @@ paths:
         '200':
           description: Room joined
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: Cannot join room
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Room not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -295,11 +424,25 @@ paths:
         '403':
           description: Not in the requested room
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Room not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -315,15 +458,36 @@ paths:
         '200':
           description: Left room
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: Not in the room
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Room not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -359,15 +523,36 @@ paths:
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User has not created the room or not enough players to start
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Room not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -403,15 +588,36 @@ paths:
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User not in room
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Room not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -439,11 +645,25 @@ paths:
         '403':
           description: User not in game
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -476,11 +696,25 @@ paths:
         '403':
           description: User not in game or user not drawing
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -506,19 +740,47 @@ paths:
         '201':
           description: Guess of the theme submitted
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User not in game or user not guessing
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -540,15 +802,36 @@ paths:
         '200':
           description: User is present
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User not in game
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -575,19 +858,47 @@ paths:
         '201':
           description: Drawing submitted
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User not in game
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -614,19 +925,47 @@ paths:
         '201':
           description: Vote submitted
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
         '400':
           description: Invalid request
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
         '403':
           description: User not in game
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
         '404':
           description: Game not found
           content:
-            $ref: "#/components/responses/Message"
+            application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+            - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
@@ -763,28 +1102,6 @@ components:
       required:
         - lines
   responses:
-    Message:
-      application/json:
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-          required:
-            - message
-    AccessToken:
-      application/json:
-        schema:
-          type: object
-          properties:
-            access_token:
-              type: string
-              format: JWT
-            refresh_token:
-              type: string
-              format: JWT
-          required:
-            - access_token
     TokenExpired:
       description: Token has expired
       content:
