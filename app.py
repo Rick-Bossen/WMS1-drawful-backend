@@ -1,5 +1,6 @@
 from flask import Flask, make_response, jsonify
 from flask_cors import CORS
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from dotenv import load_dotenv
 import os
@@ -20,6 +21,13 @@ app.config["DEBUG"] = os.environ.get("DEBUG", True)
 
 # Init CORS
 CORS(app)
+
+# Init Swagger UI
+swaggerui_blueprint = get_swaggerui_blueprint(
+    "/docs",
+    "/static/openapi.yml"
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix="/docs")
 
 # Init database connection
 app.config['MONGO_URI'] = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/drawful")

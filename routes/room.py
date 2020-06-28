@@ -116,10 +116,10 @@ def remove_player(join_code):
     _id = get_jwt_identity()["_id"]
     users = room.get("users")
 
-    if _id not in users:
+    if _id not in list(i.get("id") for i in room.get("users")):
         return make_response(jsonify({"message": "User not in room"}), 403)
 
-    users.remove(_id)
+    users = [user for user in users if user.get("id") != _id];
 
     mongo.db.rooms.update({"_id": join_code},
                           {"$set": {"users": users}})
