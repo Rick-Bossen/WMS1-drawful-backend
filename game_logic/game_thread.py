@@ -21,7 +21,7 @@ class BackgroundThread(threading.Thread):
                 game_logic.game_handler.user_timeout(self.match_id)
 
             elif game.get("status") == "showing_scores" and int(time()) - game.get("updated_at") >= 10:
-                game_logic.game_handler.advance_game(self.match_id, None)
+                game_logic.game_handler.advance_from_showing_scores(self.match_id)
 
             elif set(i.get("id") for i in game.get("users")) == set(game.get("unresponsive_users")):
                 game_logic.game_handler.delete_game(self.match_id)
