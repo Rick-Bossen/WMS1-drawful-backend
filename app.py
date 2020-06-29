@@ -43,6 +43,11 @@ def not_found(error):
     return make_response(jsonify({'message': 'Not found'}), 404)
 
 
+@app.route('/version')
+def version():
+    return make_response(jsonify({'version': '1.1.0'}), 200)
+
+
 # Register blueprints
 app.register_blueprint(game_bp, url_prefix="/game")
 app.register_blueprint(room_bp, url_prefix="/room")

@@ -3,7 +3,7 @@ openapi: 3.0.3
 info:
   title: Artless API WMS1
   description: API for a school project of the Hanzehogeschool
-  version: '1'
+  version: '1.0.1'
 servers:
   - url: https://drawpy.logick.nl
 paths:
