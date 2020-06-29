@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.3
 info:
-  title: Drawful API WMS1
+  title: Artless API WMS1
   description: API for a school project of the Hanzehogeschool
   version: '1'
 servers:
@@ -937,35 +937,35 @@ paths:
           description: Invalid request
           content:
             application/json:
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-          required:
-            - message
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '403':
           description: User not in game
           content:
             application/json:
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-          required:
-            - message
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '404':
           description: Game not found
           content:
             application/json:
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-          required:
-            - message
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+              required:
+                - message
         '401':
           $ref: "#/components/responses/TokenExpired"
         '422':
